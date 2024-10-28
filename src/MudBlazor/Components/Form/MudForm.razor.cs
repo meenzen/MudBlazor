@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using MudBlazor.Interfaces;
 using MudBlazor.Utilities;
 
+#nullable enable
 namespace MudBlazor
 {
     /// <summary>
@@ -26,7 +22,7 @@ namespace MudBlazor
         /// </summary>
         [Parameter]
         [Category(CategoryTypes.Form.ValidatedData)]
-        public RenderFragment ChildContent { get; set; }
+        public RenderFragment? ChildContent { get; set; }
 
         /// <summary>
         /// Whether all inputs and child forms passed validation.
@@ -164,8 +160,8 @@ namespace MudBlazor
         public EventCallback<FormFieldChangedEventArgs> FieldChanged { get; set; }
 
         // keeps track of validation. if the input was validated at least once the value will be true
-        protected HashSet<IFormComponent> _formControls = new();
-        protected HashSet<string> _errors = new();
+        protected HashSet<IFormComponent> _formControls = [];
+        protected HashSet<string> _errors = [];
 
         /// <summary>
         /// The default function or attribute used to validate form components which cannot validate themselves.
@@ -190,7 +186,7 @@ namespace MudBlazor
         /// </remarks>
         [Parameter]
         [Category(CategoryTypes.FormComponent.Validation)]
-        public object Validation { get; set; }
+        public object? Validation { get; set; }
 
         /// <summary>
         /// Overrides input validation with the function or attribute in <see cref="Validation"/>.
@@ -225,17 +221,15 @@ namespace MudBlazor
         /// <remarks>
         /// Properties of this model are typically linked to form input components via their <see cref="MudFormComponent{T, U}.For"/>.
         /// </remarks>
-#nullable enable
         [Parameter]
         [Category(CategoryTypes.Form.ValidatedData)]
         public object? Model { get; set; }
-#nullable disable
 
-        protected HashSet<MudForm> ChildForms { get; } = new HashSet<MudForm>();
+        protected HashSet<MudForm> ChildForms { get; } = [];
 
-        [CascadingParameter] private MudForm ParentMudForm { get; set; }
+        [CascadingParameter] private MudForm? ParentMudForm { get; set; }
 
-        void IForm.FieldChanged(IFormComponent formControl, object newValue)
+        void IForm.FieldChanged(IFormComponent formControl, object? newValue)
         {
             FieldChanged.InvokeAsync(new FormFieldChangedEventArgs { Field = formControl, NewValue = newValue }).CatchAndLog();
         }
@@ -253,7 +247,7 @@ namespace MudBlazor
             _formControls.Remove(formControl);
         }
 
-        private Timer _timer;
+        private Timer? _timer;
 
         /// <summary>
         /// Called by any input of the form to signal that its value changed. 
@@ -273,7 +267,7 @@ namespace MudBlazor
                 _ = OnEvaluateForm();
         }
 
-        private void OnTimerComplete(object stateInfo)
+        private void OnTimerComplete(object? stateInfo)
         {
             try
             {
@@ -295,18 +289,18 @@ namespace MudBlazor
             // form can only be valid if:
             // - none have an error
             // - all required fields have been touched (and thus validated)
-            var no_errors = _formControls.All(x => x.HasErrors == false);
-            var required_all_touched = _formControls.Where(x => x.Required).All(x => x.Touched);
-            var valid = no_errors && required_all_touched;
+            var noErrors = _formControls.All(x => x.HasErrors == false);
+            var requiredAllTouched = _formControls.Where(x => x.Required).All(x => x.Touched);
+            var valid = noErrors && requiredAllTouched;
 
-            var old_touched = _touched;
+            var oldTouched = _touched;
             _touched = _formControls.Any(x => x.Touched);
             try
             {
                 _shouldRender = false;
                 SetIsValid(valid);
                 await ErrorsChanged.InvokeAsync(Errors);
-                if (old_touched != _touched)
+                if (oldTouched != _touched)
                     await IsTouchedChanged.InvokeAsync(_touched);
             }
             finally
