@@ -18,7 +18,7 @@
                          ErrorId="@ErrorId"
                          Disabled="@GetDisabledState()"
                          Required="@Required"
-                         ForId="@InputElementId">
+                         ForId="@(InputElementId ?? string.Empty)">
             <InputContent>
                 <MudInput @ref="_elementReference" @key="_elementKey" InputType="InputType.Text"
                           Class="@InputClassname" Margin="@Margin"
@@ -91,10 +91,10 @@
                                 <MudListItem T="T" Value="@item" @key="@item" id="@GetListItemId(captureIndex)" Disabled="@(isDisabled)" OnClick="@(async () => await ListItemOnClickAsync(item))" OnClickPreventDefault="true" Class="@GetListItemClassname(isSelected)">
                                      @if (showDisabledTemplate)
                                      {
-                                         @ItemDisabledTemplate(item)
+                                         @ItemDisabledTemplate!(item)
                                      } else if (showSelectedTemplate)
                                      {
-                                         @ItemSelectedTemplate(item)
+                                         @ItemSelectedTemplate!(item)
                                      } else if (ItemTemplate != null)
                                      {
                                          @ItemTemplate(item)
