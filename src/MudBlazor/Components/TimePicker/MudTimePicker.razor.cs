@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using MudBlazor.Utilities;
 
+#nullable enable
 namespace MudBlazor
 {
     public partial class MudTimePicker : MudPicker<TimeSpan?>
@@ -38,7 +39,7 @@ namespace MudBlazor
             return time.ToString(((DefaultConverter<TimeSpan?>)Converter).Format, Culture);
         }
 
-        private TimeSpan? OnGet(string value)
+        private TimeSpan? OnGet(string? value)
         {
             if (string.IsNullOrEmpty(value))
             {
@@ -488,8 +489,8 @@ namespace MudBlazor
         private readonly SetTime _timeSet = new();
         private int _initialHour;
         private int _initialMinute;
-        private DotNetObjectReference<MudTimePicker> _dotNetRef;
-        private string _clockElementReferenceId;
+        private DotNetObjectReference<MudTimePicker>? _dotNetRef;
+        private string? _clockElementReferenceId;
 
         protected override void OnInitialized()
         {
