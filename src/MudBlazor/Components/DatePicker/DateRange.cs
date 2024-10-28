@@ -1,6 +1,6 @@
-﻿using System;
-using MudBlazor.Extensions;
+﻿using MudBlazor.Extensions;
 
+#nullable enable
 namespace MudBlazor
 {
     /// <summary>
@@ -56,7 +56,7 @@ namespace MudBlazor
         /// <param name="converter">The converter for parsing string values.</param>
         /// <param name="date">The result of the parse.</param>
         /// <returns><c>true</c> if the string was successfully interpreted as a date.</returns>
-        public static bool TryParse(string value, Converter<DateTime?, string> converter, out DateRange date)
+        public static bool TryParse(string value, Converter<DateTime?, string> converter, out DateRange? date)
         {
             date = null;
 
@@ -74,7 +74,7 @@ namespace MudBlazor
         /// <param name="converter">The converter for parsing string values.</param>
         /// <param name="date">The result of the parse.</param>
         /// <returns><c>true</c> if the string was successfully interpreted as a date.</returns>
-        public static bool TryParse(string start, string end, Converter<DateTime?, string> converter, out DateRange date)
+        public static bool TryParse(string? start, string? end, Converter<DateTime?, string> converter, out DateRange? date)
         {
             date = null;
 
@@ -94,12 +94,12 @@ namespace MudBlazor
         public override int GetHashCode() => HashCode.Combine(Start, End);
 
         /// <inheritdoc />
-        public override bool Equals(object obj) => Equals(obj as DateRange);
+        public override bool Equals(object? obj) => Equals(obj as DateRange);
 
         /// <inheritdoc />
-        public bool Equals(DateRange other) => other != null && Start == other.Start && End == other.End;
+        public bool Equals(DateRange? other) => other != null && Start == other.Start && End == other.End;
 
-        public static bool operator ==(DateRange dateRange1, DateRange dateRange2)
+        public static bool operator ==(DateRange? dateRange1, DateRange? dateRange2)
         {
             if (ReferenceEquals(dateRange1, dateRange2))
                 return true;
@@ -109,6 +109,6 @@ namespace MudBlazor
             return dateRange1.Equals(dateRange2);
         }
 
-        public static bool operator !=(DateRange dateRange1, DateRange dateRange2) => !(dateRange1 == dateRange2);
+        public static bool operator !=(DateRange? dateRange1, DateRange? dateRange2) => !(dateRange1 == dateRange2);
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.Web;
 using MudBlazor.Extensions;
 using MudBlazor.Utilities;
 
+#nullable enable
 namespace MudBlazor
 {
     /// <summary>
@@ -13,7 +14,7 @@ namespace MudBlazor
         private DateTime? _selectedDate;
 
         [Inject]
-        protected TimeProvider TimeProvider { get; set; }
+        protected TimeProvider TimeProvider { get; set; } = null!;
 
         /// <summary>
         /// Occurs when the <see cref="Date"/> has changed.
@@ -79,7 +80,7 @@ namespace MudBlazor
             }
         }
 
-        protected override Task DateFormatChangedAsync(string newFormat)
+        protected override Task DateFormatChangedAsync(string? newFormat)
         {
             Touched = true;
             return SetTextAsync(Converter.Set(_value), false);

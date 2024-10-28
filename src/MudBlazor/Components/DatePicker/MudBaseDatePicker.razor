@@ -1,5 +1,4 @@
-﻿@using MudBlazor.Internal
-@using MudBlazor.Resources
+﻿@using MudBlazor.Resources
 @namespace MudBlazor
 @inherits MudPicker<DateTime?>
 @inject InternalMudLocalizer Localizer
@@ -7,6 +6,7 @@
 @Render
 
 @code {
+#nullable enable
 
     protected override RenderFragment PickerContent =>
     @<CascadingValue Value="@this" IsFixed="true">
@@ -121,7 +121,7 @@
                                             {
                                                 var selectedDay = !firstMonthFirstYear ? day : day.AddDays(-1);
                                                 <button @key="@(!firstMonthFirstYear ? selectedDay : tempId)" type="button" style="--day-id: @(!firstMonthFirstYear ? tempId : tempId + 1);"
-                                                        class="mud-button-root mud-icon-button mud-ripple mud-ripple-icon mud-picker-calendar-day @(!firstMonthFirstYear || day.Day == _picker_month.Value.Day? GetDayClasses(tempMonth, day) : GetDayClasses(tempMonth, selectedDay))"
+                                                        class="mud-button-root mud-icon-button mud-ripple mud-ripple-icon mud-picker-calendar-day @(!firstMonthFirstYear || day.Day == _picker_month!.Value.Day? GetDayClasses(tempMonth, day) : GetDayClasses(tempMonth, selectedDay))"
                                                         @onclick="(async () => { var d = selectedDay; await OnDayClickedAsync(d); })"
                                                         @onclick:stopPropagation="true"
                                                         onpointerover="@(async () => await HandleMouseoverOnPickerCalendarDayButton(!firstMonthFirstYear ? tempId : tempId + 1))"

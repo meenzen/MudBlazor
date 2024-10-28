@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Threading.Tasks;
+﻿using System.Globalization;
 using Microsoft.AspNetCore.Components;
 using MudBlazor.Extensions;
 using MudBlazor.Utilities;
 
+#nullable enable
 namespace MudBlazor
 {
     /// <summary>
@@ -26,9 +24,9 @@ namespace MudBlazor
             _mudPickerCalendarContentElementId = Identifier.Create();
         }
 
-        [Inject] protected IScrollManager ScrollManager { get; set; }
+        [Inject] protected IScrollManager ScrollManager { get; set; } = null!;
 
-        [Inject] private IJsApiService JsApiService { get; set; }
+        [Inject] private IJsApiService JsApiService { get; set; } = null!;
 
         /// <summary>
         /// The maximum selectable date.
@@ -59,7 +57,7 @@ namespace MudBlazor
         /// </summary>
         [Parameter]
         [Category(CategoryTypes.FormComponent.Behavior)]
-        public string DateFormat
+        public string? DateFormat
         {
             get
             {
@@ -79,7 +77,7 @@ namespace MudBlazor
         /// <summary>
         /// Occurs when the <see cref="DateFormat"/> has changed.
         /// </summary>
-        protected virtual Task DateFormatChangedAsync(string newFormat)
+        protected virtual Task DateFormatChangedAsync(string? newFormat)
         {
             return Task.CompletedTask;
         }
@@ -233,7 +231,7 @@ namespace MudBlazor
         /// </remarks>
         [Parameter]
         [Category(CategoryTypes.FormComponent.Appearance)]
-        public Func<DateTime, string> AdditionalDateClassesFunc { get; set; }
+        public Func<DateTime, string>? AdditionalDateClassesFunc { get; set; }
 
         /// <summary>
         /// The icon for the button that navigates to the previous month or year.
@@ -580,7 +578,7 @@ namespace MudBlazor
             return Culture.Calendar.GetYear(DateTime.Today) + 100;
         }
 
-        private string GetYearClasses(int year)
+        private string? GetYearClasses(int year)
         {
             if (year == Culture.Calendar.GetYear(GetMonthStart(0)))
                 return $"mud-picker-year-selected mud-{Color.ToDescriptionString()}-text";
@@ -629,7 +627,7 @@ namespace MudBlazor
             return Culture.DateTimeFormat.MonthNames[calendarMonth - 1];
         }
 
-        private string GetMonthClasses(DateTime month)
+        private string? GetMonthClasses(DateTime month)
         {
             if (Culture.Calendar.GetMonth(GetMonthStart(0)) == Culture.Calendar.GetMonth(month) && !IsMonthDisabled(month))
                 return $"mud-picker-month-selected mud-{Color.ToDescriptionString()}-text";

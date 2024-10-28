@@ -1,10 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Components;
 using MudBlazor.Extensions;
 using MudBlazor.Utilities;
 
+#nullable enable
 namespace MudBlazor
 {
     /// <summary>
@@ -12,9 +11,10 @@ namespace MudBlazor
     /// </summary>
     public partial class MudDateRangePicker : MudBaseDatePicker
     {
-        private DateTime? _firstDate = null, _secondDate;
-        private DateRange _dateRange;
-        private Range<string> _rangeText;
+        private DateTime? _firstDate;
+        private DateTime? _secondDate;
+        private DateRange? _dateRange;
+        private Range<string>? _rangeText;
 
         protected override bool IsRange => true;
 
@@ -35,7 +35,7 @@ namespace MudBlazor
         /// </remarks>
         [Parameter]
         [Category(CategoryTypes.FormComponent.Behavior)]
-        public string PlaceholderStart { get; set; }
+        public string? PlaceholderStart { get; set; }
 
         /// <summary>
         /// The text displayed in the end input if no date is specified.
@@ -45,7 +45,7 @@ namespace MudBlazor
         /// </remarks>
         [Parameter]
         [Category(CategoryTypes.FormComponent.Behavior)]
-        public string PlaceholderEnd { get; set; }
+        public string? PlaceholderEnd { get; set; }
 
         /// <summary>
         /// The icon displayed between start and end dates.
@@ -61,14 +61,14 @@ namespace MudBlazor
         /// Occurs when <see cref="DateRange"/> has changed.
         /// </summary>
         [Parameter]
-        public EventCallback<DateRange> DateRangeChanged { get; set; }
+        public EventCallback<DateRange?> DateRangeChanged { get; set; }
 
         /// <summary>
         /// The currently selected date range.
         /// </summary>
         [Parameter]
         [Category(CategoryTypes.FormComponent.Data)]
-        public DateRange DateRange
+        public DateRange? DateRange
         {
             get => _dateRange;
             set => SetDateRangeAsync(value, true).CatchAndLog();
@@ -84,7 +84,7 @@ namespace MudBlazor
         [Category(CategoryTypes.FormComponent.Validation)]
         public bool AllowDisabledDatesInRange { get; set; } = false;
 
-        protected async Task SetDateRangeAsync(DateRange range, bool updateValue)
+        protected async Task SetDateRangeAsync(DateRange? range, bool updateValue)
         {
             if (_dateRange != range)
             {
@@ -117,8 +117,8 @@ namespace MudBlazor
                     else
                     {
                         _rangeText = new Range<string>(
-                            Converter.Set(_dateRange.Start),
-                            Converter.Set(_dateRange.End));
+                            Converter.Set(_dateRange.Start)!,
+                            Converter.Set(_dateRange.End)!);
                         await SetTextAsync(_dateRange.ToString(Converter), false);
                     }
                 }
@@ -129,7 +129,7 @@ namespace MudBlazor
             }
         }
 
-        private Range<string> RangeText
+        private Range<string>? RangeText
         {
             get => _rangeText;
             set
@@ -143,48 +143,72 @@ namespace MudBlazor
             }
         }
 
-        private MudRangeInput<string> _rangeInput;
+        private MudRangeInput<string>? _rangeInput;
 
         /// <summary>
         /// Focuses the start input.
         /// </summary>
-        public ValueTask FocusStartAsync() => _rangeInput.FocusStartAsync();
+        public ValueTask FocusStartAsync()
+        {
+            Debug.Assert(_rangeInput is not null);
+            return _rangeInput.FocusStartAsync();
+        }
 
         /// <summary>
         /// Selects the start input text.
         /// </summary>
-        public ValueTask SelectStartAsync() => _rangeInput.SelectStartAsync();
+        public ValueTask SelectStartAsync()
+        {
+            Debug.Assert(_rangeInput is not null);
+            return _rangeInput.SelectStartAsync();
+        }
 
         /// <summary>
         /// Selects a portion of the start input text.
         /// </summary>
         /// <param name="pos1">The index of the first character to select.</param>
         /// <param name="pos2">The index of the last character to select.</param>
-        public ValueTask SelectRangeStartAsync(int pos1, int pos2) => _rangeInput.SelectRangeStartAsync(pos1, pos2);
+        public ValueTask SelectRangeStartAsync(int pos1, int pos2)
+        {
+            Debug.Assert(_rangeInput is not null);
+            return _rangeInput.SelectRangeStartAsync(pos1, pos2);
+        }
 
         /// <summary>
         /// Focuses the end input.
         /// </summary>
-        public ValueTask FocusEndAsync() => _rangeInput.FocusEndAsync();
+        public ValueTask FocusEndAsync()
+        {
+            Debug.Assert(_rangeInput is not null);
+            return _rangeInput.FocusEndAsync();
+        }
 
         /// <summary>
         /// Selects the end input text.
         /// </summary>
-        public ValueTask SelectEndAsync() => _rangeInput.SelectEndAsync();
+        public ValueTask SelectEndAsync()
+        {
+            Debug.Assert(_rangeInput is not null);
+            return _rangeInput.SelectEndAsync();
+        }
 
         /// <summary>
         /// Selects a portion of the end input text.
         /// </summary>
         /// <param name="pos1">The index of the first character to select.</param>
         /// <param name="pos2">The index of the last character to select.</param>
-        public ValueTask SelectRangeEndAsync(int pos1, int pos2) => _rangeInput.SelectRangeEndAsync(pos1, pos2);
+        public ValueTask SelectRangeEndAsync(int pos1, int pos2)
+        {
+            Debug.Assert(_rangeInput is not null);
+            return _rangeInput.SelectRangeEndAsync(pos1, pos2);
+        }
 
-        protected override Task DateFormatChangedAsync(string newFormat)
+        protected override Task DateFormatChangedAsync(string? newFormat)
         {
             Touched = true;
             _rangeText = new Range<string>(
-                Converter.Set(_dateRange?.Start),
-                Converter.Set(_dateRange?.End));
+                Converter.Set(_dateRange?.Start)!,
+                Converter.Set(_dateRange?.End)!);
             return SetTextAsync(_dateRange?.ToString(Converter), false);
         }
 
@@ -197,12 +221,12 @@ namespace MudBlazor
 
         protected override bool HasValue(DateTime? value) => value is not null;
 
-        private DateRange ParseDateRangeValue(string value)
+        private DateRange? ParseDateRangeValue(string value)
         {
             return DateRange.TryParse(value, Converter, out var dateRange) ? dateRange : null;
         }
 
-        private DateRange ParseDateRangeValue(string start, string end)
+        private DateRange? ParseDateRangeValue(string? start, string? end)
         {
             return DateRange.TryParse(start, end, Converter, out var dateRange) ? dateRange : null;
         }
