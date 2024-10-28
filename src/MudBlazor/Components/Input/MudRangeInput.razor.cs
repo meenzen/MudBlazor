@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components.Web;
 using MudBlazor.Utilities;
 
+#nullable enable
 namespace MudBlazor
 {
     /// <summary>
@@ -10,7 +11,8 @@ namespace MudBlazor
     /// <typeparam name="T">The type of object managed by this input.</typeparam>
     public partial class MudRangeInput<T> : MudBaseInput<Range<T>>
     {
-        private string _textStart, _textEnd;
+        private string? _textStart;
+        private string? _textEnd;
 
         /// <summary>
         /// Creates a new instance.
@@ -48,13 +50,13 @@ namespace MudBlazor
         /// The hint displayed before the user enters a starting value.
         /// </summary>
         [Parameter]
-        public string PlaceholderStart { get; set; }
+        public string? PlaceholderStart { get; set; }
 
         /// <summary>
         /// The hint displayed before the user enters an ending value.
         /// </summary>
         [Parameter]
-        public string PlaceholderEnd { get; set; }
+        public string? PlaceholderEnd { get; set; }
 
         protected bool IsClearable() => Clearable && Value != null;
 
@@ -92,9 +94,10 @@ namespace MudBlazor
         /// Will only display if <see cref="InputType"/> is <see cref="InputType.Hidden"/>.
         /// </remarks>
         [Parameter]
-        public RenderFragment ChildContent { get; set; }
+        public RenderFragment? ChildContent { get; set; }
 
-        private ElementReference _elementReferenceStart, _elementReferenceEnd;
+        private ElementReference _elementReferenceStart;
+        private ElementReference _elementReferenceEnd;
 
         /// <summary>
         /// The icon shown in between start and end values.
@@ -142,7 +145,7 @@ namespace MudBlazor
         /// <summary>
         /// The text of the start of the range.
         /// </summary>
-        public string TextStart
+        public string? TextStart
         {
             get => _textStart;
             set
@@ -157,7 +160,7 @@ namespace MudBlazor
         /// <summary>
         /// The text of the end of the range.
         /// </summary>
-        public string TextEnd
+        public string? TextEnd
         {
             get => _textEnd;
             set

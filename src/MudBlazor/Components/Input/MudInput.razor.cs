@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using MudBlazor.Utilities;
 
+#nullable enable
 namespace MudBlazor
 {
     /// <summary>
@@ -12,8 +13,8 @@ namespace MudBlazor
     public partial class MudInput<T> : MudBaseInput<T>
     {
         private ElementReference _elementReference1;
-        private string _oldText = null;
-        private string _internalText;
+        private string? _oldText = null;
+        private string? _internalText;
         private bool _shouldInitAutoGrow;
 
         protected string Classname =>
@@ -84,7 +85,7 @@ namespace MudBlazor
         /// Will only display if <see cref="InputType"/> is <see cref="InputType.Hidden"/>.
         /// </remarks>
         [Parameter]
-        public RenderFragment ChildContent { get; set; }
+        public RenderFragment? ChildContent { get; set; }
 
         /// <summary>
         /// The reference to the HTML element for this component.
@@ -335,7 +336,7 @@ namespace MudBlazor
         /// Set the <see cref="MudBaseInput{T}.Text"/> to the specified value.
         /// </summary>
         /// <param name="text">The new value.</param>
-        public Task SetText(string text)
+        public Task SetText(string? text)
         {
             _internalText = text;
             return SetTextAsync(text);
