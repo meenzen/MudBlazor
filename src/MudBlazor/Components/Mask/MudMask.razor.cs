@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Components.Web;
 using MudBlazor.Services;
 using MudBlazor.Utilities;
 
+#nullable enable
 namespace MudBlazor
 {
     /// <summary>
@@ -21,7 +22,7 @@ namespace MudBlazor
     {
         private ElementReference _elementReference;
         private ElementReference _elementReference1;
-        private IJsEvent _jsEvent;
+        private IJsEvent? _jsEvent;
         private string _elementId = Identifier.Create("mask");
         private IMask _mask = new PatternMask("** **-** **");
 
@@ -68,8 +69,8 @@ namespace MudBlazor
         [Inject]
         private IKeyInterceptorService KeyInterceptorService { get; set; } = null!;
 
-        [Inject] private IJsEventFactory _jsEventFactory { get; set; }
-        [Inject] private IJsApiService _jsApiService { get; set; }
+        [Inject] private IJsEventFactory _jsEventFactory { get; set; } = null!;
+        [Inject] private IJsApiService _jsApiService { get; set; } = null!;
 
         /// <summary>
         /// The content within this input.
@@ -79,7 +80,7 @@ namespace MudBlazor
         /// </remarks>
         [Parameter]
         [Category(CategoryTypes.General.Appearance)]
-        public RenderFragment ChildContent { get; set; }
+        public RenderFragment? ChildContent { get; set; }
 
         /// <summary>
         /// The mask to apply to text values.
@@ -115,7 +116,7 @@ namespace MudBlazor
 
         private bool _showClearable;
 
-        private void UpdateClearable(object value)
+        private void UpdateClearable()
         {
             var showClearable = Clearable && !string.IsNullOrWhiteSpace(Text);
 
@@ -251,7 +252,7 @@ namespace MudBlazor
             {
                 await base.SetTextAsync(text, updateValue: false);
                 if (Clearable)
-                    UpdateClearable(Text);
+                    UpdateClearable();
                 var v = Converter.Get(cleanText);
                 Value = v;
                 await ValueChanged.InvokeAsync(v);
