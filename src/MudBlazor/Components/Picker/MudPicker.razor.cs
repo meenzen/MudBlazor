@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MudBlazor.Services;
 using MudBlazor.Utilities;
@@ -16,7 +14,12 @@ namespace MudBlazor
     /// <seealso cref="MudPickerToolbar" />
     public partial class MudPicker<T> : MudFormComponent<T, string>
     {
+        private string? _text;
+        private bool _pickerSquare;
+        private int _pickerElevation;
+        private ElementReference _pickerInlineRef;
         private bool _keyInterceptorObserving = false;
+        private string _elementId = Identifier.Create("picker");
 
         /// <summary>
         /// Creates a new instance.
@@ -27,8 +30,6 @@ namespace MudBlazor
 
         [Inject]
         private IKeyInterceptorService KeyInterceptorService { get; set; } = null!;
-
-        private string _elementId = Identifier.Create("picker");
 
         protected string PickerClassname =>
             new CssBuilder("mud-picker")
@@ -78,6 +79,12 @@ namespace MudBlazor
             new CssBuilder("mud-picker-actions")
                 .AddClass(ActionsClass)
                 .Build();
+
+        [CascadingParameter(Name = "ParentDisabled")]
+        private bool ParentDisabled { get; set; }
+
+        [CascadingParameter(Name = "ParentReadOnly")]
+        private bool ParentReadOnly { get; set; }
 
         /// <summary>
         /// The color of the <see cref="AdornmentIcon"/>.
@@ -214,10 +221,6 @@ namespace MudBlazor
         [Category(CategoryTypes.FormComponent.Behavior)]
         public bool Disabled { get; set; }
 
-        [CascadingParameter(Name = "ParentDisabled")]
-        private bool ParentDisabled { get; set; }
-        protected bool GetDisabledState() => Disabled || ParentDisabled;
-
         /// <summary>
         /// Shows an underline under the input text.
         /// </summary>
@@ -238,10 +241,6 @@ namespace MudBlazor
         [Parameter]
         [Category(CategoryTypes.FormComponent.Behavior)]
         public bool ReadOnly { get; set; }
-
-        [CascadingParameter(Name = "ParentReadOnly")]
-        private bool ParentReadOnly { get; set; }
-        protected bool GetReadOnlyState() => ReadOnly || ParentReadOnly;
 
         /// <summary>
         /// Allows the value to be edited.
@@ -368,8 +367,6 @@ namespace MudBlazor
             set => SetTextAsync(value, true).CatchAndLog();
         }
 
-        private string? _text;
-
         /// <summary>
         /// The CSS classes applied to the action buttons container.
         /// </summary>
@@ -435,6 +432,10 @@ namespace MudBlazor
 
         protected IMask? _mask = null;
 
+        protected bool GetDisabledState() => Disabled || ParentDisabled;
+
+        protected bool GetReadOnlyState() => ReadOnly || ParentReadOnly;
+
         protected async Task SetTextAsync(string? value, bool callback)
         {
             if (_text != value)
@@ -449,10 +450,7 @@ namespace MudBlazor
         /// <summary>
         /// Occurs when the string value has changed.
         /// </summary>
-        protected virtual Task StringValueChangedAsync(string? value)
-        {
-            return Task.CompletedTask;
-        }
+        protected virtual Task StringValueChangedAsync(string? value) => Task.CompletedTask;
 
         protected bool Open { get; set; }
 
@@ -465,10 +463,8 @@ namespace MudBlazor
             {
                 return CloseAsync();
             }
-            else
-            {
-                return OpenAsync();
-            }
+
+            return OpenAsync();
         }
 
         /// <summary>
@@ -548,10 +544,6 @@ namespace MudBlazor
         /// <param name="pos2">The index of the last character to select.</param>
         public virtual ValueTask SelectRangeAsync(int pos1, int pos2) =>
             _inputReference?.SelectRangeAsync(pos1, pos2) ?? ValueTask.CompletedTask;
-
-        private bool _pickerSquare;
-        private int _pickerElevation;
-        private ElementReference _pickerInlineRef;
 
         protected override void OnInitialized()
         {
