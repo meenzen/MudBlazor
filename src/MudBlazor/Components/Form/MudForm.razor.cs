@@ -11,11 +11,29 @@ namespace MudBlazor
     /// </summary>
     public partial class MudForm : MudComponentBase, IDisposable, IForm
     {
+        // Note: w/o any children the form is automatically valid.
+        // It stays valid, as long as non-required fields are added or
+        // a required field is added or the user touches a field that fails validation.
+        private bool _valid = true;
+        private bool _touched = false;
+        private Timer? _timer;
+        // Default is true, we need the form children to render
+        private bool _shouldRender = true;
+
         protected string Classname =>
             new CssBuilder("mud-form")
                 .AddClass($"gap-{Spacing}", Spacing >= 0)
                 .AddClass(Class)
                 .Build();
+
+        [CascadingParameter]
+        private MudForm? ParentMudForm { get; set; }
+
+        [CascadingParameter(Name = "ParentDisabled")]
+        private bool ParentDisabled { get; set; }
+
+        [CascadingParameter(Name = "ParentReadOnly")]
+        private bool ParentReadOnly { get; set; }
 
         /// <summary>
         /// The content within this form.
@@ -35,23 +53,7 @@ namespace MudBlazor
         public bool IsValid
         {
             get => _valid && ChildForms.All(x => x.IsValid);
-            set
-            {
-                _valid = value;
-            }
-        }
-
-        // Note: w/o any children the form is automatically valid.
-        // It stays valid, as long as non-required fields are added or
-        // a required field is added or the user touches a field that fails validation.
-        private bool _valid = true;
-
-        private void SetIsValid(bool value)
-        {
-            if (IsValid == value)
-                return;
-            IsValid = value;
-            IsValidChanged.InvokeAsync(IsValid).CatchAndLog();
+            set => _valid = value;
         }
 
         // Note: w/o any children the form is automatically valid.
@@ -68,8 +70,6 @@ namespace MudBlazor
         [Category(CategoryTypes.Form.Behavior)]
         public bool IsTouched { get => _touched; set {/* readonly parameter! */ } }
 
-        private bool _touched = false;
-
         /// <summary>
         /// Prevents the user from interacting with this form.
         /// </summary>
@@ -80,11 +80,6 @@ namespace MudBlazor
         [Category(CategoryTypes.Form.Behavior)]
         public bool Disabled { get; set; }
 
-        [CascadingParameter(Name = "ParentDisabled")]
-        private bool ParentDisabled { get; set; }
-
-        protected bool GetDisabledState() => Disabled || ParentDisabled;
-
         /// <summary>
         /// Prevents the user from changing any inputs.
         /// </summary>
@@ -94,11 +89,6 @@ namespace MudBlazor
         [Parameter]
         [Category(CategoryTypes.Form.Behavior)]
         public bool ReadOnly { get; set; }
-
-        [CascadingParameter(Name = "ParentReadOnly")]
-        private bool ParentReadOnly { get; set; }
-
-        protected bool GetReadOnlyState() => ReadOnly || ParentReadOnly;
 
         /// <summary>
         /// The delay, in milliseconds, before performing validation.
@@ -158,10 +148,6 @@ namespace MudBlazor
         /// </summary>
         [Parameter]
         public EventCallback<FormFieldChangedEventArgs> FieldChanged { get; set; }
-
-        // keeps track of validation. if the input was validated at least once the value will be true
-        protected HashSet<IFormComponent> _formControls = [];
-        protected HashSet<string> _errors = [];
 
         /// <summary>
         /// The default function or attribute used to validate form components which cannot validate themselves.
@@ -225,61 +211,15 @@ namespace MudBlazor
         [Category(CategoryTypes.Form.ValidatedData)]
         public object? Model { get; set; }
 
+        // keeps track of validation. if the input was validated at least once the value will be true
+        protected HashSet<IFormComponent> _formControls = [];
+        protected HashSet<string> _errors = [];
+
+        protected bool GetDisabledState() => Disabled || ParentDisabled;
+
+        protected bool GetReadOnlyState() => ReadOnly || ParentReadOnly;
+
         protected HashSet<MudForm> ChildForms { get; } = [];
-
-        [CascadingParameter] private MudForm? ParentMudForm { get; set; }
-
-        void IForm.FieldChanged(IFormComponent formControl, object? newValue)
-        {
-            FieldChanged.InvokeAsync(new FormFieldChangedEventArgs { Field = formControl, NewValue = newValue }).CatchAndLog();
-        }
-
-        void IForm.Add(IFormComponent formControl)
-        {
-            if (formControl.Required)
-                SetIsValid(false);
-            _formControls.Add(formControl);
-            SetDefaultControlValidation(formControl);
-        }
-
-        void IForm.Remove(IFormComponent formControl)
-        {
-            _formControls.Remove(formControl);
-        }
-
-        private Timer? _timer;
-
-        /// <summary>
-        /// Called by any input of the form to signal that its value changed. 
-        /// </summary>
-        /// <param name="formControl"></param>
-        void IForm.Update(IFormComponent formControl)
-        {
-            EvaluateForm();
-        }
-
-        private void EvaluateForm(bool debounce = true)
-        {
-            _timer?.Dispose();
-            if (debounce && ValidationDelay > 0)
-                _timer = new Timer(OnTimerComplete, null, ValidationDelay, Timeout.Infinite);
-            else
-                _ = OnEvaluateForm();
-        }
-
-        private void OnTimerComplete(object? stateInfo)
-        {
-            try
-            {
-                InvokeAsync(OnEvaluateForm);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"An error occured while executing {nameof(OnEvaluateForm)}: {e.Message}");
-            }
-        }
-
-        private bool _shouldRender = true; // <-- default is true, we need the form children to render
 
         protected async Task OnEvaluateForm()
         {
@@ -311,9 +251,30 @@ namespace MudBlazor
 
         protected override bool ShouldRender()
         {
-            if (!SuppressRenderingOnValidation)
-                return true;
-            return _shouldRender;
+            return !SuppressRenderingOnValidation || _shouldRender;
+        }
+
+        protected override Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                var valid = _formControls.All(x => x.Required == false);
+                if (valid != IsValid)
+                {
+                    // the user probably bound a variable to IsValid, and it conflicts with our state.
+                    // let's set this right
+                    SetIsValid(valid);
+                }
+
+            }
+            return base.OnAfterRenderAsync(firstRender);
+        }
+
+        protected override void OnInitialized()
+        {
+            ParentMudForm?.ChildForms.Add(this);
+
+            base.OnInitialized();
         }
 
         /// <summary>
@@ -387,22 +348,6 @@ namespace MudBlazor
             _touched = false;
         }
 
-        protected override Task OnAfterRenderAsync(bool firstRender)
-        {
-            if (firstRender)
-            {
-                var valid = _formControls.All(x => x.Required == false);
-                if (valid != IsValid)
-                {
-                    // the user probably bound a variable to IsValid and it conflicts with our state.
-                    // let's set this right
-                    SetIsValid(valid);
-                }
-
-            }
-            return base.OnAfterRenderAsync(firstRender);
-        }
-
         private void SetDefaultControlValidation(IFormComponent formComponent)
         {
             if (Validation == null) return;
@@ -413,14 +358,70 @@ namespace MudBlazor
             }
         }
 
-        protected override void OnInitialized()
+        private void SetIsValid(bool value)
         {
-            if (ParentMudForm != null)
-            {
-                ParentMudForm.ChildForms.Add(this);
-            }
+            if (IsValid == value)
+                return;
+            IsValid = value;
+            IsValidChanged.InvokeAsync(IsValid).CatchAndLog();
+        }
 
-            base.OnInitialized();
+        private void EvaluateForm(bool debounce = true)
+        {
+            _timer?.Dispose();
+            if (debounce && ValidationDelay > 0)
+                _timer = new Timer(OnTimerComplete, null, ValidationDelay, Timeout.Infinite);
+            else
+                _ = OnEvaluateForm();
+        }
+
+        private void OnTimerComplete(object? stateInfo)
+        {
+            try
+            {
+                InvokeAsync(OnEvaluateForm);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($@"An error occured while executing {nameof(OnEvaluateForm)}: {e.Message}");
+            }
+        }
+
+        void IForm.FieldChanged(IFormComponent formControl, object? newValue)
+        {
+            FieldChanged.InvokeAsync(new FormFieldChangedEventArgs { Field = formControl, NewValue = newValue }).CatchAndLog();
+        }
+
+        void IForm.Add(IFormComponent formControl)
+        {
+            if (formControl.Required)
+                SetIsValid(false);
+            _formControls.Add(formControl);
+            SetDefaultControlValidation(formControl);
+        }
+
+        void IForm.Remove(IFormComponent formControl)
+        {
+            _formControls.Remove(formControl);
+        }
+
+        /// <summary>
+        /// Called by any input of the form to signal that its value changed. 
+        /// </summary>
+        /// <param name="formControl"></param>
+        void IForm.Update(IFormComponent formControl) => EvaluateForm();
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _timer?.Dispose();
+                if (ParentMudForm != null)
+                {
+                    ParentMudForm.ChildForms.Remove(this);
+                    ParentMudForm.EvaluateForm(); // Need this to refresh the form state
+                }
+            }
         }
 
         /// <summary>
@@ -428,12 +429,8 @@ namespace MudBlazor
         /// </summary>
         public void Dispose()
         {
-            _timer?.Dispose();
-            if (ParentMudForm != null)
-            {
-                ParentMudForm.ChildForms.Remove(this);
-                ParentMudForm.EvaluateForm(); // Need this to refresh the form state
-            }
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }
