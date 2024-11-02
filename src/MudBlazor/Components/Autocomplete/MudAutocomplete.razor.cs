@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using MudBlazor.Utilities;
@@ -25,7 +24,7 @@ namespace MudBlazor
         private int _elementKey = 0;
         private int _returnedItemsCount;
         private bool _open;
-        private MudInput<string>? _elementReference;
+        private MudInput<string> _elementReference = null!;
         private CancellationTokenSource? _cancellationTokenSrc;
         private Task? _currentSearchTask;
         private Timer? _debounceTimer;
@@ -413,7 +412,7 @@ namespace MudBlazor
         public bool SelectValueOnTab { get; set; }
 
         /// <summary>
-        /// Additionally opens the list when focus is received on the input element; otherwise only opens on click.
+        /// Additionally, opens the list when focus is received on the input element; otherwise only opens on click.
         /// </summary>
         /// <remarks>
         /// Defaults to <c>true</c>.
@@ -517,15 +516,12 @@ namespace MudBlazor
 
                 await BeginValidateAsync();
 
-                if (_elementReference is not null)
+                if (!_isCleared)
                 {
-                    if (!_isCleared)
-                    {
-                        await _elementReference.SetText(optionText);
-                    }
-
-                    await FocusAsync();
+                    await _elementReference.SetText(optionText);
                 }
+
+                await FocusAsync();
 
                 Open = false;
 
@@ -653,7 +649,6 @@ namespace MudBlazor
 
             var searchedItems = Array.Empty<T>();
             CancelToken();
-            Debug.Assert(_cancellationTokenSrc is not null);
 
             var wasFocused = _isFocused;
             var searchingWhileSelected = false;
@@ -667,14 +662,13 @@ namespace MudBlazor
 
                 // Search while selected if enabled and the Text is equivalent to the Value.
                 searchingWhileSelected = !Strict && Value != null && (Value.ToString() == Text || (ToStringFunc != null && ToStringFunc(Value) == Text));
-
+                _cancellationTokenSrc ??= new CancellationTokenSource();
                 var searchText = searchingWhileSelected ? string.Empty : Text;
                 var searchTask = SearchFunc?.Invoke(searchText, _cancellationTokenSrc.Token);
 
                 _currentSearchTask = searchTask;
 
                 StateHasChanged();
-
                 searchedItems = searchTask switch
                 {
                     null => [],
@@ -747,8 +741,7 @@ namespace MudBlazor
                 await SetTextAsync("", updateValue: false);
                 await SetValueAsync(default(T), updateText: false);
 
-                if (_elementReference != null)
-                    await _elementReference.ResetAsync();
+                await _elementReference.ResetAsync();
 
                 _debounceTimer?.Dispose();
                 StateHasChanged();
@@ -763,13 +756,20 @@ namespace MudBlazor
 
         private string? GetItemString(T? item)
         {
-            if (item == null)
+            if (item is null)
+            {
                 return string.Empty;
+            }
+
             try
             {
                 return Converter.Set(item);
             }
-            catch (NullReferenceException) { }
+            catch (NullReferenceException)
+            {
+                // ignore
+            }
+
             return "null";
         }
 
@@ -1025,7 +1025,6 @@ namespace MudBlazor
         /// </summary>
         public override ValueTask FocusAsync()
         {
-            Debug.Assert(_elementReference is not null);
             return _elementReference.FocusAsync();
         }
 
@@ -1034,16 +1033,14 @@ namespace MudBlazor
         /// </summary>
         public override ValueTask BlurAsync()
         {
-            Debug.Assert(_elementReference is not null);
             return _elementReference.BlurAsync();
         }
 
         /// <summary>
-        /// Selects all of the current text within the Autocomplete text box.
+        /// Selects all the current text within the Autocomplete text box.
         /// </summary>
         public override ValueTask SelectAsync()
         {
-            Debug.Assert(_elementReference is not null);
             return _elementReference.SelectAsync();
         }
 
@@ -1055,7 +1052,6 @@ namespace MudBlazor
         /// <returns>A <see cref="ValueTask"/> object.</returns>
         public override ValueTask SelectRangeAsync(int pos1, int pos2)
         {
-            Debug.Assert(_elementReference is not null);
             return _elementReference.SelectRangeAsync(pos1, pos2);
         }
 
