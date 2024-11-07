@@ -8,13 +8,13 @@
     @if (Adornment == Adornment.Start)
     {
         <MudInputAdornment Class="@AdornmentClassname"
-                           Icon="@(AdornmentIcon ?? string.Empty)"
+                           Icon="@AdornmentIcon"
                            Color="@AdornmentColor"
                            Size="@IconSize"
-                           Text="@(AdornmentText ?? string.Empty)"
+                           Text="@AdornmentText"
                            Placement="@Adornment.Start"
                            AdornmentClick="@OnAdornmentClick"
-                           AriaLabel="@(AdornmentAriaLabel ?? string.Empty)" />
+                           AriaLabel="@AdornmentAriaLabel" />
     }
 
     @if (Lines > 1)
@@ -99,13 +99,13 @@
     @if (Adornment == Adornment.End)
     {
         <MudInputAdornment Class="@AdornmentClassname"
-                           Icon="@(AdornmentIcon ?? string.Empty)"
+                           Icon="@AdornmentIcon"
                            Color="@AdornmentColor"
                            Size="@IconSize"
-                           Text="@(AdornmentText ?? string.Empty)"
+                           Text="@AdornmentText"
                            Placement="@Adornment.End"
                            AdornmentClick="@OnAdornmentClick"
-                           AriaLabel="@(AdornmentAriaLabel ?? string.Empty)" />
+                           AriaLabel="@AdornmentAriaLabel" />
     }
 
     @if (Variant == Variant.Outlined)
