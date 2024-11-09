@@ -212,7 +212,7 @@ namespace MudBlazor
             return SetTextAsync(_dateRange?.ToString(Converter), false);
         }
 
-        protected override Task StringValueChangedAsync(string value)
+        protected override Task StringValueChangedAsync(string? value)
         {
             Touched = true;
             // Update the date range property (without updating back the Value property)
@@ -221,8 +221,13 @@ namespace MudBlazor
 
         protected override bool HasValue(DateTime? value) => value is not null;
 
-        private DateRange? ParseDateRangeValue(string value)
+        private DateRange? ParseDateRangeValue(string? value)
         {
+            if (value is null)
+            {
+                return null;
+            }
+
             return DateRange.TryParse(value, Converter, out var dateRange) ? dateRange : null;
         }
 

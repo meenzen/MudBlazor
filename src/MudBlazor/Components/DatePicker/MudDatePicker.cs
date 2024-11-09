@@ -86,7 +86,7 @@ namespace MudBlazor
             return SetTextAsync(Converter.Set(_value), false);
         }
 
-        protected override Task StringValueChangedAsync(string value)
+        protected override Task StringValueChangedAsync(string? value)
         {
             Touched = true;
             // Update the date property (without updating back the Value property)
