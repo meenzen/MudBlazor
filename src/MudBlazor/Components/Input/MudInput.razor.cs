@@ -163,21 +163,21 @@ namespace MudBlazor
         [Parameter]
         public int MaxLines { get; set; }
 
-        protected Task OnInput(ChangeEventArgs args)
+        protected Task OnInput(ChangeEventArgs? args)
         {
             if (!Immediate)
                 return Task.CompletedTask;
             _isFocused = true;
-            return SetTextAsync(args.Value as string);
+            return SetTextAsync(args?.Value as string);
         }
 
-        protected async Task OnChange(ChangeEventArgs args)
+        protected async Task OnChange(ChangeEventArgs? args)
         {
-            _internalText = args.Value as string;
+            _internalText = args?.Value as string;
             await OnInternalInputChanged.InvokeAsync(args);
             if (!Immediate)
             {
-                await SetTextAsync(args.Value as string);
+                await SetTextAsync(args?.Value as string);
             }
         }
 
