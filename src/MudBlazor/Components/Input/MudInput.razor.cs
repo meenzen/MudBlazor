@@ -12,10 +12,10 @@ namespace MudBlazor
     /// <typeparam name="T">The type of object managed by this input.</typeparam>
     public partial class MudInput<T> : MudBaseInput<T>
     {
-        private ElementReference _elementReference1;
-        private string? _oldText = null;
         private string? _internalText;
+        private string? _oldText = null;
         private bool _shouldInitAutoGrow;
+        private ElementReference _elementReference1;
 
         protected string Classname =>
             new CssBuilder(
@@ -40,6 +40,10 @@ namespace MudBlazor
                 .AddClass("mud-icon-button-edge-margin-end", Adornment != Adornment.End && HideSpinButtons)
                 .Build();
 
+        internal override InputType GetInputType() => InputType;
+
+        protected string InputTypeString => InputType.ToDescriptionString();
+
         /// <summary>
         /// The type of input collected by this component.
         /// </summary>
@@ -49,35 +53,6 @@ namespace MudBlazor
         [Parameter]
         public InputType InputType { get; set; } = InputType.Text;
 
-        internal override InputType GetInputType() => InputType;
-
-        protected string InputTypeString => InputType.ToDescriptionString();
-
-        protected Task OnInput(ChangeEventArgs args)
-        {
-            if (!Immediate)
-                return Task.CompletedTask;
-            _isFocused = true;
-            return SetTextAsync(args?.Value as string);
-        }
-
-        protected async Task OnChange(ChangeEventArgs args)
-        {
-            _internalText = args?.Value as string;
-            await OnInternalInputChanged.InvokeAsync(args);
-            if (!Immediate)
-            {
-                await SetTextAsync(args?.Value as string);
-            }
-        }
-
-        /// <summary>
-        /// Paste hook for descendants.
-        /// </summary>
-        protected virtual Task OnPaste(ClipboardEventArgs args)
-        {
-            return Task.CompletedTask;
-        }
         /// <summary>
         /// The content within this input component.
         /// </summary>
@@ -91,40 +66,6 @@ namespace MudBlazor
         /// The reference to the HTML element for this component.
         /// </summary>
         public ElementReference ElementReference { get; private set; }
-
-        /// <inheritdoc />
-        public override async ValueTask FocusAsync()
-        {
-            try
-            {
-                if (InputType == InputType.Hidden && ChildContent != null)
-                    await _elementReference1.FocusAsync();
-                else
-                    await ElementReference.FocusAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("MudInput.FocusAsync: " + e.Message);
-            }
-        }
-
-        /// <inheritdoc />
-        public override ValueTask BlurAsync()
-        {
-            return ElementReference.MudBlurAsync();
-        }
-
-        /// <inheritdoc />
-        public override ValueTask SelectAsync()
-        {
-            return ElementReference.MudSelectAsync();
-        }
-
-        /// <inheritdoc />
-        public override ValueTask SelectRangeAsync(int pos1, int pos2)
-        {
-            return ElementReference.MudSelectRangeAsync(pos1, pos2);
-        }
 
         /// <summary>
         /// Occurs when the <c>Up</c> arrow button is clicked.
@@ -222,6 +163,66 @@ namespace MudBlazor
         [Parameter]
         public int MaxLines { get; set; }
 
+        protected Task OnInput(ChangeEventArgs args)
+        {
+            if (!Immediate)
+                return Task.CompletedTask;
+            _isFocused = true;
+            return SetTextAsync(args.Value as string);
+        }
+
+        protected async Task OnChange(ChangeEventArgs args)
+        {
+            _internalText = args.Value as string;
+            await OnInternalInputChanged.InvokeAsync(args);
+            if (!Immediate)
+            {
+                await SetTextAsync(args.Value as string);
+            }
+        }
+
+        /// <summary>
+        /// Paste hook for descendants.
+        /// </summary>
+        protected virtual Task OnPaste(ClipboardEventArgs args)
+        {
+            return Task.CompletedTask;
+        }
+
+        /// <inheritdoc />
+        public override async ValueTask FocusAsync()
+        {
+            try
+            {
+                if (InputType == InputType.Hidden && ChildContent != null)
+                    await _elementReference1.FocusAsync();
+                else
+                    await ElementReference.FocusAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($@"MudInput.FocusAsync: {e.Message}");
+            }
+        }
+
+        /// <inheritdoc />
+        public override ValueTask BlurAsync()
+        {
+            return ElementReference.MudBlurAsync();
+        }
+
+        /// <inheritdoc />
+        public override ValueTask SelectAsync()
+        {
+            return ElementReference.MudSelectAsync();
+        }
+
+        /// <inheritdoc />
+        public override ValueTask SelectRangeAsync(int pos1, int pos2)
+        {
+            return ElementReference.MudSelectRangeAsync(pos1, pos2);
+        }
+
         private Size GetButtonSize() => Margin == Margin.Dense ? Size.Small : Size.Medium;
 
         /// <summary>
@@ -310,7 +311,8 @@ namespace MudBlazor
             }
         }
 
-        [Inject] private IJSRuntime JsRuntime { get; set; } = null!;
+        [Inject]
+        private IJSRuntime JsRuntime { get; set; } = null!;
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {

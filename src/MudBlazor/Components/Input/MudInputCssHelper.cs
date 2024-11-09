@@ -1,12 +1,11 @@
-﻿using System;
-using MudBlazor.Utilities;
+﻿using MudBlazor.Utilities;
 
 namespace MudBlazor;
 
+#nullable enable
 /// <summary>
 /// A set of methods which generate CSS classes for <see cref="MudBaseInput{T}" /> components.
 /// </summary>
-#nullable enable
 internal static class MudInputCssHelper
 {
     /// <summary>

@@ -12,7 +12,6 @@ namespace MudBlazor.Internal;
 /// <summary>
 /// An icon displayed within an input component.
 /// </summary>
-#nullable enable
 public partial class MudInputAdornment
 {
     protected string Classname =>
