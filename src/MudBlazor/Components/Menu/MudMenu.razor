@@ -11,41 +11,44 @@
      @oncontextmenu="@((ActivationEvent == MouseEvent.RightClick ? ToggleMenuAsync : null)!)"
      @oncontextmenu:preventDefault="@(ActivationEvent == MouseEvent.RightClick)">
 
-    @if (ActivatorContent != null)
+    @if (!Hidden)
     {
-        <CascadingValue Value="@((IActivatable)this)" IsFixed="true">
-            <div @onclick="ToggleMenuAsync" disabled="@Disabled" class="@ActivatorClassname">
-                @ActivatorContent
-            </div>
-        </CascadingValue>
-    }
-    else if (string.IsNullOrEmpty(Icon))
-    {
-        <MudButton StartIcon="@StartIcon"
-                   EndIcon="@EndIcon"
-                   IconColor="@IconColor"
-                   Color="@Color"
-                   Size="@Size"
-                   Variant="@Variant"
-                   Disabled="@Disabled"
-                   Ripple="@Ripple"
-                   DropShadow="@DropShadow"
-                   OnClick="@ToggleMenuAsync"
-                   aria-label="@AriaLabel">
-            @Label
-        </MudButton>
-    }
-    else
-    {
-        <MudIconButton Variant="@Variant"
-                       Icon="@Icon"
+        @if (ActivatorContent != null)
+        {
+            <CascadingValue Value="@((IActivatable)this)" IsFixed="true">
+                <div @onclick="ToggleMenuAsync" disabled="@Disabled" class="@ActivatorClassname">
+                    @ActivatorContent
+                </div>
+            </CascadingValue>
+        }
+        else if (string.IsNullOrEmpty(Icon))
+        {
+            <MudButton StartIcon="@StartIcon"
+                       EndIcon="@EndIcon"
+                       IconColor="@IconColor"
                        Color="@Color"
                        Size="@Size"
+                       Variant="@Variant"
                        Disabled="@Disabled"
                        Ripple="@Ripple"
                        DropShadow="@DropShadow"
                        OnClick="@ToggleMenuAsync"
-                       aria-label="@AriaLabel" />
+                       aria-label="@AriaLabel">
+                @Label
+            </MudButton>
+        }
+        else
+        {
+            <MudIconButton Variant="@Variant"
+                           Icon="@Icon"
+                           Color="@Color"
+                           Size="@Size"
+                           Disabled="@Disabled"
+                           Ripple="@Ripple"
+                           DropShadow="@DropShadow"
+                           OnClick="@ToggleMenuAsync"
+                           aria-label="@AriaLabel"/>
+        }
     }
 
     @* The portal has to include the cascading values inside, because it's not able to teletransport the cascade *@
@@ -69,5 +72,5 @@
         </CascadingValue>
     </MudPopover>
 
-    <MudOverlay Visible="Open && !_isTemporary" AutoClose OnClosed="CloseMenuAsync" LockScroll="LockScroll" />
+    <MudOverlay Visible="Open && !_isTemporary" AutoClose OnClosed="CloseMenuAsync" LockScroll="LockScroll"/>
 </div>
