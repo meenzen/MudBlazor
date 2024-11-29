@@ -566,5 +566,44 @@ namespace MudBlazor.UnitTests.Components
 
             await Context.Renderer.Dispatcher.InvokeAsync(mudMenuContext.CloseMenuAsync);
         }
+
+        [Test]
+        public void ContextMenu_Should_NotHaveButton_And_NotBeVisible()
+        {
+            // Arrange
+            var comp = Context.RenderComponent<ContextMenuTest>();
+            var menuComponent = comp.FindComponent<MudMenu>();
+
+            // Assert
+            comp.FindAll("button.mud-button-root").Count.Should().Be(0);
+            menuComponent.Find("div.mud-menu").ClassList.Should().Contain("mud-menu-button-hidden");
+        }
+
+        [Test]
+        public void ContextMenu_WithLabel_Sould_HaveButton_And_BeVisible()
+        {
+            // Arrange
+            var comp = Context.RenderComponent<ContextMenuTest>(parameters
+                => parameters.Add(p => p.Label, "Context Menu"));
+            var menuComponent = comp.FindComponent<MudMenu>();
+
+            // Assert
+            menuComponent.FindAll("button").Count.Should().Be(1);
+            menuComponent.Find("div.mud-menu").ClassList.Should().NotContain("mud-menu-button-hidden");
+        }
+
+        [Test]
+        public void ContextMenu_WithActivatorContent_Sould_HaveActivatorContent_And_BeVisible()
+        {
+            // Arrange
+            var comp = Context.RenderComponent<ContextMenuTest>(parameters
+                => parameters.Add(p => p.ActivatorContent, "<div id=\"custom-activator\">Custom Activator Content</div>"));
+            var menuComponent = comp.FindComponent<MudMenu>();
+
+            // Assert
+            menuComponent.FindAll("button").Count.Should().Be(0);
+            menuComponent.Find("div.mud-menu").ClassList.Should().NotContain("mud-menu-button-hidden");
+            menuComponent.Find("div#custom-activator").TextContent.Should().Be("Custom Activator Content");
+        }
     }
 }

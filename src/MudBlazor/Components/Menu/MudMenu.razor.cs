@@ -34,7 +34,7 @@ namespace MudBlazor
 
         protected string Classname =>
             new CssBuilder("mud-menu")
-                .AddClass("mud-menu-hidden", Hidden)
+                .AddClass("mud-menu-button-hidden", ButtonHidden)
                 .AddClass(Class)
                 .Build();
 
@@ -254,17 +254,6 @@ namespace MudBlazor
         public bool Disabled { get; set; }
 
         /// <summary>
-        /// Removes the button or custom activator from the visual layout. Useful when the menu is only opened
-        /// programmatically, like in a context menu.
-        /// </summary>
-        /// <remarks>
-        /// Defaults to <c>false</c>.
-        /// </remarks>
-        [Parameter]
-        [Category(CategoryTypes.Menu.Behavior)]
-        public bool Hidden { get; set; }
-
-        /// <summary>
         /// Shows a ripple animation when the user clicks the activator button.
         /// </summary>
         /// <remarks>
@@ -308,6 +297,8 @@ namespace MudBlazor
 
         [CascadingParameter]
         private MudMenu? ParentMenu { get; set; }
+
+        private bool ButtonHidden => ActivatorContent is null && string.IsNullOrWhiteSpace(Label);
 
         /// <summary>
         /// Closes this menu.
