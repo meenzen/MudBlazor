@@ -10,7 +10,7 @@
      @onpointerleave="@PointerLeaveAsync"
      @oncontextmenu="@((ActivationEvent == MouseEvent.RightClick ? ToggleMenuAsync : null)!)"
      @oncontextmenu:preventDefault="@(ActivationEvent == MouseEvent.RightClick)">
-    @if (ButtonHidden)
+    @if (ActivatorHidden)
     {
         @* No need to render anything *@
     }
